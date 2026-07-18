@@ -21,7 +21,7 @@ const ProfessorSchema = new mongoose.Schema(
     },
     senhaHash: {
       type: String,
-      type: [true, "A senha é obrigatória!"],
+      requeride: [true, "A senha é obrigatória!"],
       select: false,
     },
   },
