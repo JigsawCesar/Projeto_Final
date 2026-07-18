@@ -1,4 +1,4 @@
-# 🦁 LionsDev Final Project | Full-Stack Application
+# 🦁 Projeto Final LionsDev | Aplicação Full-Stack
 
 <p align="center">
   <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js"/>
@@ -10,95 +10,91 @@
 
 ---
 
-## 📝 Overview
-This full-stack application represents the **Final Graduation Project** for the **LionsDev** software engineering program. Built upon a robust architectural foundation, the ecosystem delivers secure authentication, cloud-native data persistence, decoupled domain layers, and seamless end-to-end frontend integration.
+## 📝 Visão Geral
+Esta aplicação full-stack representa o **Projeto Final de Graduação** do programa de engenharia de software **LionsDev** (Turma: Lions Dev)[cite: 1]. Construído sobre uma base arquitetural sólida, o ecossistema entrega autenticação segura, persistência de dados nativa em nuvem, camadas de domínio desacopladas e uma integração completa de ponta a ponta com a interface frontend[cite: 1].
 
 ---
 
-## 🚀 Live Deployments
-The application is fully operational in production. Explore the cloud environments below:
+## 🛠️ Tecnologias e Dependências
+O ecossistema do projeto foi construído utilizando as seguintes ferramentas obrigatórias[cite: 1]:
 
-<table>
-  <tr>
-    <td><strong>🌐 Frontend Site</strong></td>
-    <td><a href="INSERT_FRONTEND_URL_HERE">🔗 Access Live Interface</a></td>
-  </tr>
-  <tr>
-    <td><strong>⚙️ Backend Gateway</strong></td>
-    <td><a href="INSERT_BACKEND_URL_HERE">🔗 Access Public API API</a></td>
-  </tr>
-</table>
+* **Ambiente de Execução:** Node.js (Versão LTS)[cite: 1]
+* **Framework Web:** Express.js[cite: 1]
+* **Mapeamento de Dados (ODM):** Mongoose / MongoDB Atlas[cite: 1]
+* **Segurança e Criptografia:** `bcryptjs` (Hash de senhas) e `jsonwebtoken` (Autenticação Bearer Token)[cite: 1]
+* **Gerenciamento de Ambiente:** `dotenv`[cite: 1]
+* **Ferramenta de Testes:** Postman (Coleção de testes inclusa no repositório)[cite: 1]
+* **Ambiente de Hospedagem:** Render Web Services[cite: 1]
 
 ---
 
-## 🛠️ Technology Stack
-* **Runtime:** Node.js (LTS Engine)
-* **Framework:** Express.js 
-* **Database ODM:** Mongoose / MongoDB Atlas
-* **Security:** `bcryptjs` (Blowfish Hashing) & `jsonwebtoken` (Stateful Bearer Bearer)
-* **Testing:** Postman Automated Core
-* **Deployment System:** Render Web Services
+## ✨ Funcionalidades Principais
+* **Sistema de Autenticação Robusto:** Cadastro de usuários com senhas protegidas por hash e fluxo de login com emissão de tokens JWT[cite: 1].
+* **Controle de Acesso Protegido:** Rotas privadas do ecossistema bloqueadas por middlewares de validação de token[cite: 1].
+* **Operações CRUD Completas:** Gerenciamento e manipulação total de dados para pelo menos 2 entidades do domínio[cite: 1].
+* **Persistência na Nuvem:** Todas as operações realizam modificações em tempo real diretamente no MongoDB Atlas[cite: 1].
+* **Regra de Negócio entre Entidades:** Lógica de fluxo exclusiva que conecta e valida interações cruzadas entre diferentes coleções de dados[cite: 1].
 
 ---
 
-## ✨ System Architecture & Layers
-The system core builds directly upon the original **LionsDev Boilerplate**, implementing a strictly decoupled architectural model to enforce separation of concerns:
+## 🗂️ Arquitetura do Sistema e Camadas
+O núcleo do sistema foi construído diretamente sobre o **Boilerplate oficial da LionsDev**, implementando um modelo de arquitetura estritamente desacoplado para garantir a separação de responsabilidades[cite: 1]:
 
 ```text
 src/
-├── 📄 app.js             # Global interceptors, route orchestration, and 404 handlers
-├── 📄 server.js          # Core initialization, environment boots, and MongoDB driver
-├── 📂 config/            # Infrastructure drivers (database.js connections)
-├── 📂 controllers/       # HTTP request ingestion and structural JSON response delivery
-├── 📂 middlewares/       # Core security walls, route guarding, and validation pipelines
-├── 📂 models/            # Strict Mongoose ODM collection Schemas
-├── 📂 repositories/      # Data Access Objects (DAO) communicating with the MongoDB driver
-├── 📂 routes/            # Network edge routing and middleware chain definitions
-├── 📂 services/          # Pure isolated business domain and validation constraints
-└── 📂 utils/             # Reusable core engines (custom dynamic error generation)
+├── 📄 app.js             # Interceptadores globais, orquestração de rotas e tratamento de 404
+├── 📄 server.js          # Inicialização do core, carregamento do ambiente e driver do MongoDB
+├── 📂 config/            # Drivers de infraestrutura (conexões database.js)
+├── 📂 controllers/       # Ingestão de requisições HTTP e entrega de respostas JSON estruturadas
+├── 📂 middlewares/       # Barreiras de segurança, proteção de rotas e pipelines de validação
+├── 📂 models/            # Schemas rígidos do Mongoose ODM para as coleções
+├── 📂 repositories/      # Data Access Objects (DAO) que comunicam diretamente com o banco de dados
+├── 📂 routes/            # Roteamento de rede e definições das cadeias de middlewares
+├── 📂 services/          # Domínio puro de negócios isolado e restrições de validação lógica
+└── 📂 utils/             # Motores utilitários reutilizáveis (geração dinâmica de erros customizados)
 ```
 
-> ⚠️ **Core Layer Rule:** Controllers do *not* speak to the database. Persistance is strictly managed by the **Repository**, while business workflow validations are locked inside the **Service** tier.
+> ⚠️ **Regra Fundamental das Camadas:** Os Controllers *não* se comunicam com o banco de dados. A persistência é gerenciada estritamente pelo **Repository**, enquanto os fluxos e validações de regras de negócio ficam trancados dentro da camada de **Service**[cite: 1].
 
 ---
 
-## 🛣️ Production API Blueprint
+## 🛣️ Estrutura das Rotas da API
 
-### 🔐 Security & Identity
-| Method | Endpoint | Description | Guard Type |
+### 🔐 Segurança e Identidade (Nativas do Boilerplate)
+| Método | Endpoint | Descrição | Tipo de Proteção |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/cadastro` | Provision new user credentials | `Public` |
-| `POST` | `/api/auth/login` | Validate records & distribute JWT | `Public` |
-| `GET` | `/api/usuarios/perfil` | Fetch authenticated identity metadata | `Bearer Token` |
-| `PATCH` | `/api/usuarios/perfil` | Update dynamic profile vectors | `Bearer Token` |
-| `DELETE` | `/api/usuarios/perfil`| Decommission user system records | `Bearer Token` |
+| `POST` | `/api/auth/cadastro` | Provedor de novas credenciais de usuário | `Público` |
+| `POST` | `/api/auth/login` | Validação de registros e distribuição de JWT | `Público` |
+| `GET` | `/api/usuarios/perfil` | Busca metadados da identidade autenticada | `Bearer Token` |
+| `PATCH` | `/api/usuarios/perfil` | Atualização de vetores dinâmicos do perfil | `Bearer Token` |
+| `DELETE` | `/api/usuarios/perfil`| Descomissionamento de registros do usuário no sistema | `Bearer Token` |
 
-### 📁 Core Domain Entities
-*Replace placeholders below with your exact system domain models:*
+### 📁 Entidades Principais do Domínio
+*Substitua os marcadores abaixo com os modelos de domínio exatos do seu sistema:*[cite: 1]
 
-#### Entity Model Alpha: `[Entity A]`
-* `POST /api/entidade-a` → Register unique record `[Protected]`
-* `GET /api/entidade-a` → Ingest full collection logs `[Protected]`
-* `GET /api/entidade-a/:id` → Fetch targeted unique instance ID `[Protected]`
-* `PATCH /api/entidade-a/:id` → Mutate localized fields `[Protected]`
-* `DELETE /api/entidade-a/:id` → Purge system entity entry `[Protected]`
+#### Modelo de Entidade Alfa: `[Entidade A]`
+* `POST /api/entidade-a` → Cadastrar um registro único `[Protegido]`[cite: 1]
+* `GET /api/entidade-a` → Listar todos os registros salvos `[Protegido]`[cite: 1]
+* `GET /api/entidade-a/:id` → Buscar uma instância única por ID `[Protegido]`[cite: 1]
+* `PATCH /api/entidade-a/:id` → Atualizar campos localizados do registro `[Protegido]`[cite: 1]
+* `DELETE /api/entidade-a/:id` → Remover permanentemente a entrada do sistema `[Protegido]`[cite: 1]
 
-#### Entity Model Beta: `[Entity B]`
-* `POST /api/entidade-b` → Register unique record `[Protected]`
-* `GET /api/entidade-b` → Ingest full collection logs `[Protected]`
-* `GET /api/entidade-b/:id` → Fetch targeted unique instance ID `[Protected]`
-* `PATCH /api/entidade-b/:id` → Mutate localized fields `[Protected]`
-* `DELETE /api/entidade-b/:id` → Purge system entity entry `[Protected]`
+#### Modelo de Entidade Beta: `[Entidade B]`
+* `POST /api/entidade-b` → Cadastrar um registro único `[Protegido]`[cite: 1]
+* `GET /api/entidade-b` → Listar todos os registros salvos `[Protegido]`[cite: 1]
+* `GET /api/entidade-b/:id` → Buscar uma instância única por ID `[Protegido]`[cite: 1]
+* `PATCH /api/entidade-b/:id` → Atualizar campos localizados do registro `[Protegido]`[cite: 1]
+* `DELETE /api/entidade-b/:id` → Remover permanentemente a entrada do sistema `[Protegido]`[cite: 1]
 
 ---
 
-## ⚙️ Environment Blueprint (`.env`)
-Generate your local configuration file inside the root repository root using the layout structure below:
+## ⚙️ Variáveis de Ambiente (`.env`)
+Gere seu arquivo de configuração local dentro da raiz do repositório utilizando a estrutura de variáveis definida abaixo:
 
 ```ini
 PORT=3000
-MONGO_URI=your_mongodb_atlas_connection_string
-JWT_SECRET=your_jwt_token_secret_key
+MONGO_URI=sua_string_de_conexao_do_mongodb_atlas
+JWT_SECRET=sua_chave_secreta_do_token_jwt
 JWT_EXPIRES_IN=1d
 BCRYPT_SALT_ROUNDS=10
 NODE_ENV=development
@@ -106,48 +102,48 @@ NODE_ENV=development
 
 ---
 
-## 💻 Local Setup Flow
-1. **Clone the repository:**
+## 💻 Configuração e Execução Local
+1. **Clonar o repositório:**
    ```bash
-   git clone [YOUR-REPOSITORY-URL]
-   cd [REPOSITORY-DIRECTORY]
+   git clone [URL-DO-SEU-REPOSITORIO]
+   cd [DIRETORIO-DO-REPOSITORIO]
    ```
-2. **Install project node modules:**
+2. **Instalar os módulos de dependências:**
    ```bash
    npm install
    ```
-3. **Seed configuration keys:**
-   Create a local `.env` matching the architecture variables pattern defined above.
-4. **Boot the gateway engine:**
+3. **Configurar as chaves de ambiente:**
+   Crie um arquivo `.env` local seguindo exatamente o padrão das variáveis definido logo acima[cite: 1].
+4. **Iniciar o motor do servidor:**
    ```bash
    npm start
    ```
 
 ---
 
-## 📮 Postman Quality Assurance
-An executable integration test collection file is packaged directly into the root workspace directory:
-* **Target Schema File:** `Your_Collection_File_Name.postman_json`
+## 📮 Validação de Qualidade com Postman
+Um arquivo executável de coleção de testes de integração está empacotado diretamente no diretório raiz do espaço de trabalho[cite: 1]:
+* **Arquivo da Coleção:** `Nome_Do_Seu_Arquivo.postman_json`
 
-Import the collection directly into Postman to run automated request suites assessing error handling boundaries, malformed identifiers, unauthenticated blockades, and relation workflow logic across both `localhost` and `Render` deployment parameters.
-
----
-
-## 🤖 Applied AI Logs
-* **System Automation Platforms:** `[Specify e.g., FlutterFlow / v0 / ChatGPT]`
-* **Scope Applied:** Rapid responsive interface generation, structural boilerplate layouts, and specific front-end layout constraints.
-* **Human Validation Scope:** 100% of the core backend business rules, architectural layer logic, custom error definitions, middleware logic, and database schema associations were manually authored, tested, and audited by the project team.
+Importe a coleção diretamente no seu Postman para rodar as suítes de testes automatizados que validam limites de tratamento de erros, identificadores malformados, bloqueios não autenticados e lógicas de fluxo de relacionamento[cite: 1].
 
 ---
 
-## 👥 Engineering Team
-This software ecosystem was engineered, tested, and delivered by:
-* **Lucas Vinícius Strachulski**
-* **Lucas Apollo**
-* **Wendel**
-* **Felipe Portela**
+## 🤖 Registro de Uso de IA
+* **Plataformas de Automação Utilizadas:** `[Especificar por exemplo: FlutterFlow / v0 / ChatGPT]`[cite: 1]
+* **Escopo Aplicado:** Geração rápida de layouts responsivos para a interface, estruturas visuais iniciais e ajustes de estilização pontuais no frontend[cite: 1].
+* **Validação Humana:** 100% das regras de negócio do backend, lógica das camadas arquiteturais, definições de erros customizados, middlewares e associações de schemas do banco de dados foram desenvolvidos, testados e auditados manualmente pelos integrantes da equipe[cite: 1].
+
+---
+
+## 👥 Equipe de Engenharia
+Este ecossistema de software foi projetado, testado e defendido por:
+* **Lucas Vinícius Strachulski**[cite: 1]
+* **Lucas Apollo**[cite: 1]
+* **Wendel**[cite: 1]
+* **Felipe Portela**[cite: 1]
 
 ---
 <p align="center">
-  <sub>Developed for the graduation requirements of the LionsDev Full-Stack Software Engineering Modules.</sub>
+  <sub>Desenvolvido para cumprimento dos requisitos de avaliação dos módulos de Engenharia de Software Full-Stack da LionsDev.</sub>
 </p>
