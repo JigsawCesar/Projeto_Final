@@ -23,5 +23,13 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.24.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JigsawCesar/Projeto_Final.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JigsawCesar/Projeto_Final/issues"
+  },
+  "homepage": "https://github.com/JigsawCesar/Projeto_Final#readme"
 }
