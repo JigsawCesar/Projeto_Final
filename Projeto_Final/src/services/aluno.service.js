@@ -1,7 +1,6 @@
 import AlunoRepository from "../repositories/aluno.repository.js";
 import criar_erro from "../utils/criar_erro.js";
 
-
 async function cadastrarAluno(nome, email, cpf, senha, id) {
   const resultadoemail = await AlunoRepository.buscarPorEmail(email);
   const resultadocpf = await AlunoRepository.buscarPorCpf(cpf);
@@ -34,7 +33,6 @@ async function cadastrarAluno(nome, email, cpf, senha, id) {
   return NovoAluno;
 }
 
-
 async function ListarAlunos(filtros = {}) {
   const { nome, email, cpf, id } = filtros;
 
@@ -65,7 +63,6 @@ async function ListarAlunos(filtros = {}) {
 
   return await AlunoRepository.listarTodos();
 }
-
 
 async function AtualizarAluno(id, dadosNovos = {}) {
   const AlunoAtual = await AlunoRepository.buscarPorId(id);
