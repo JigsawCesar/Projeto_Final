@@ -22,7 +22,7 @@ app.use("/api/disciplinas", disciplina_routes);
 app.use("/api/semestres", semestre_routes);
 
 app.use((req, res, next) => {
-  return next(criarErro("Rota não encontrada!", 404));
+  return next(criar_erro("Rota não encontrada!", 404));
 });
 
 app.use(erro_middleware);
