@@ -1,6 +1,6 @@
 // Middleware central de erro.
 // Ele fica no final do app.js e recebe todos os erros enviados por next(error).
-function erroMiddleware(error, req, res, next) {
+function erro_middleware(error, req, res, next) {
   // Erros de validação do Mongoose, como campo obrigatório ou email inválido.
   if (error.name === "ValidationError") {
     // Juntamos todas as mensagens de validação em uma resposta só.
@@ -44,4 +44,4 @@ function erroMiddleware(error, req, res, next) {
   return res.status(status).json({ message });
 }
 
-export default erroMiddleware;
+export default erro_middleware;
