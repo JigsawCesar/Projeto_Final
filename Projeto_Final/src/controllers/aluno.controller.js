@@ -2,15 +2,12 @@ import AlunoRepository from "../repositories/aluno.repository.js";
 import GerarRA from "../utils/gerarRA.js";
 import bcrypt from "bcryptjs";
 
+
 export const criarAluno = async (req, res) => {
   try {
     const { nome, email, senha, curso } = req.body;
 
-    const alunoExistente = await AlunoRepository.buscarPorEmail(email);
 
-    if (alunoExistente) {
-        return res.status(400).json({ mensagem: "E-mail já cadastrado no sistema." });
-    }
 
     const ra = await GerarRA();
 
@@ -30,3 +27,5 @@ export const criarAluno = async (req, res) => {
     return res.status(500).json({mensagem: "Erro interno do servidor ao cadastrar aluno.",erro: error.message});
   }
 };
+
+
