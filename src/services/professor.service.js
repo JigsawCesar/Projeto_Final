@@ -1,5 +1,6 @@
 import ProfessorRepository from "../repositories/professor.repository.js";
 import criar_erro from "../utils/criar_erro.js";
+import bcrypt from "bcryptjs";
 
 async function cadastrarProfessor(nome, email, cpf, id) {
   const resultadoemail = await ProfessorRepository.buscarPorEmail(email);
@@ -23,10 +24,13 @@ async function cadastrarProfessor(nome, email, cpf, id) {
     throw criar_erro("Id ja utilizado", 409);
   }
 
+  const senhaHash = await bcrypt.hash(senha, 10);
+
   const NovoProfessor = await ProfessorRepository.create({
     nome,
     email,
     cpf,
+    senhaHash,
     id,
   });
 
