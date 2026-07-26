@@ -1,5 +1,6 @@
 import AlunoRepository from "../repositories/aluno.repository.js";
 import criar_erro from "../utils/criar_erro.js";
+import bcrypt from "bcryptjs"; 
 
 async function cadastrarAluno(nome, email, cpf, senha, id) {
   const resultadoemail = await AlunoRepository.buscarPorEmail(email);
@@ -8,26 +9,29 @@ async function cadastrarAluno(nome, email, cpf, senha, id) {
   const resultadoid = await AlunoRepository.buscarPorId(id);
 
   if (resultadoemail) {
-    return criar_erro("Email ja utilizado", 401);
+    throw criar_erro("Email ja utilizado", 409);
   }
 
   if (resultadocpf) {
-    return criar_erro("Cpf ja utilizado", 401);
+    throw criar_erro("Cpf ja utilizado", 409);
   }
 
   if (resultadonome) {
-    return criar_erro("Nome ja utilizado", 401);
+    throw criar_erro("Nome ja utilizado", 409);
   }
 
   if (resultadoid) {
-    return criar_erro("Id ja utilizado", 401);
+    throw criar_erro("Id ja utilizado", 409);
   }
+
+  const senhaHash = await bcrypt.hash(senha, 10);
 
   const NovoAluno = await AlunoRepository.create({
     nome,
     email,
     cpf,
-    senha
+    senhaHash: senhaHash,
+    id
   });
 
   return NovoAluno;
@@ -38,28 +42,27 @@ async function ListarAlunos(filtros = {}) {
 
   if (id) {
     const alunoPorId = await AlunoRepository.buscarPorId(id);
-    if (!alunoPorId) return criar_erro("Aluno não encontrado pelo ID", 404);
+    if (!alunoPorId) throw criar_erro("Aluno não encontrado pelo ID", 404);
     return alunoPorId;
   }
 
   if (email) {
     const alunoPorEmail = await AlunoRepository.buscarPorEmail(email);
-    if (!alunoPorEmail) return criar_erro("Aluno não encontrado por Email", 404);
+    if (!alunoPorEmail) throw criar_erro("Aluno não encontrado por Email", 404);
     return alunoPorEmail;
   }
 
   if (cpf) {
     const alunoPorCpf = await AlunoRepository.buscarPorCpf(cpf);
-    if (!alunoPorCpf) return criar_erro("Aluno não encontrado por Cpf", 404);
+    if (!alunoPorCpf) throw criar_erro("Aluno não encontrado por Cpf", 404);
     return alunoPorCpf;
   }
 
   if (nome) {
     const alunoPorNome = await AlunoRepository.buscarPorNome(nome);
-    if (!alunoPorNome) return criar_erro("Aluno não encontrado por Nome", 404);
+    if (!alunoPorNome) throw criar_erro("Aluno não encontrado por Nome", 404);
     return alunoPorNome;
   }
-
 
   return await AlunoRepository.listarTodos();
 }
@@ -68,7 +71,7 @@ async function AtualizarAluno(id, dadosNovos = {}) {
   const AlunoAtual = await AlunoRepository.buscarPorId(id);
 
   if (!AlunoAtual) {
-    return criar_erro("Aluno não encontrado pelo ID", 404);
+    throw criar_erro("Aluno não encontrado pelo ID", 404);
   }
 
   const { nome, cpf, email } = dadosNovos;
@@ -77,7 +80,7 @@ async function AtualizarAluno(id, dadosNovos = {}) {
     const EmailExistente = await AlunoRepository.buscarPorEmail(email);
 
     if (EmailExistente) {
-      return criar_erro("E-mail já está em uso por outro usuario", 401);
+      throw criar_erro("E-mail já está em uso por outro usuario", 409);
     }
   }
 
@@ -85,7 +88,7 @@ async function AtualizarAluno(id, dadosNovos = {}) {
     const CpfExistente = await AlunoRepository.buscarPorCpf(cpf);
 
     if (CpfExistente) {
-      return criar_erro("CPF ja está sendo utulizado por outro usuario", 401);
+      throw criar_erro("CPF ja está sendo utulizado por outro usuario", 409);
     }
   }
 
@@ -93,11 +96,11 @@ async function AtualizarAluno(id, dadosNovos = {}) {
     const NomeExistente = await AlunoRepository.buscarPorNome(nome);
 
     if (NomeExistente) {
-      return criar_erro("Nome ja esta sendo utilizado", 401);
+      throw criar_erro("Nome ja esta sendo utilizado", 409);
     }
   }
 
-  const AlunoAtualizado = await AlunoRepository.atualizar(id, {
+  const AlunoAtualizado = await AlunoRepository.atualizarPorId(id, {
     nome: nome || AlunoAtual.nome,
     email: email || AlunoAtual.email,
     cpf: cpf || AlunoAtual.cpf
@@ -106,19 +109,18 @@ async function AtualizarAluno(id, dadosNovos = {}) {
   return AlunoAtualizado;
 }
 
-
 async function DeletarAluno(id) {
   if (!id) {
-    return criar_erro("ID do aluno não foi fornecido", 400);
+    throw criar_erro("ID do aluno não foi fornecido", 400);
   }
 
   const alunoExistente = await AlunoRepository.buscarPorId(id);
 
   if (!alunoExistente) {
-    return criar_erro("Aluno não encontrado pelo ID", 404);
+    throw criar_erro("Aluno não encontrado pelo ID", 404);
   }
 
-  await AlunoRepository.deletar(id);
+  await AlunoRepository.deletarPorId(id);
 
   return { mensagem: "Aluno deletado com sucesso" };
 }
