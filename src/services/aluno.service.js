@@ -1,5 +1,6 @@
 import AlunoRepository from "../repositories/aluno.repository.js";
 import criar_erro from "../utils/criar_erro.js";
+import bcrypt from "bcrypt"; 
 
 async function cadastrarAluno(nome, email, cpf, senha, id) {
   const resultadoemail = await AlunoRepository.buscarPorEmail(email);
@@ -23,11 +24,13 @@ async function cadastrarAluno(nome, email, cpf, senha, id) {
     throw criar_erro("Id ja utilizado", 409);
   }
 
+  const senhaHash = await bcrypt.hash(senha, 10);
+
   const NovoAluno = await AlunoRepository.create({
     nome,
     email,
     cpf,
-    senha, // Restaurado a senha aqui
+    senha: senhaHash,
     id
   });
 
