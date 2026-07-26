@@ -1,6 +1,6 @@
 import AlunoRepository from "../repositories/aluno.repository.js";
 import criar_erro from "../utils/criar_erro.js";
-import bcrypt from "bcrypt"; 
+import bcrypt from "bcryptjs"; 
 
 async function cadastrarAluno(nome, email, cpf, senha, id) {
   const resultadoemail = await AlunoRepository.buscarPorEmail(email);
@@ -30,7 +30,7 @@ async function cadastrarAluno(nome, email, cpf, senha, id) {
     nome,
     email,
     cpf,
-    senha: senhaHash,
+    senhaHash: senhaHash,
     id
   });
 
