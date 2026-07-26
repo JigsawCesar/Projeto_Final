@@ -2,7 +2,7 @@ import ProfessorRepository from "../repositories/professor.repository.js";
 import criar_erro from "../utils/criar_erro.js";
 import bcrypt from "bcryptjs";
 
-async function cadastrarProfessor(nome, email, cpf, id, senha) {
+async function cadastrarProfessor(nome, email, cpf, senha, id) {
   const resultadoemail = await ProfessorRepository.buscarPorEmail(email);
   const resultadonome = await ProfessorRepository.buscarPorNome(nome);
   const resultadocpf = await ProfessorRepository.buscarPorCpf(cpf);
