@@ -125,9 +125,11 @@ async function deletarProfessor(id) {
   return { mensagem: "Professor deletado com sucesso" };
 }
 
-export default {
+const professorService = {
   cadastrarProfessor,
   ListarProfessor,
   AtualizarProfessor,
   deletarProfessor,
-};
+}
+
+export default professorService;

@@ -1,4 +1,4 @@
-import {express} from "express"
+import { Router } from "express"
 import alunoController from "../controllers/aluno.controller.js"
 import autenticar from "../middlewares/autenticacao.middleware.js"
 
@@ -8,10 +8,10 @@ router.post("/,", autenticar, alunoController.cadastrarAluno)
 
 router.get("/", autenticar, alunoController.listarAluno)
 
-router.get(":/id", autenticar, alunoController.listarAluno)
+router.get("/:id", autenticar, alunoController.listarAluno)
 
-router.put(":/id",autenticar, alunoController.atualizarAluno)
+router.put("/:id",autenticar, alunoController.atualizarAluno)
 
-router.delete(":/id", autenticar, alunoController.deletarAluno)
+router.delete("/:id", autenticar, alunoController.deletarAluno)
 
 export default router

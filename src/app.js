@@ -25,7 +25,7 @@ app.use("/api/semestres", semestre_routes);
 
 app.use("/api/alunos", aluno_routes)
 
-app.use("/api/professor")
+app.use("/api/professor", professor_routes)
 
 
 app.use((req, res, next) => {
