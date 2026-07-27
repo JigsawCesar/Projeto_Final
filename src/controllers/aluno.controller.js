@@ -1,31 +1,66 @@
-import AlunoRepository from "../repositories/aluno.repository.js";
-import GerarRA from "../utils/gerarRA.js";
-import bcrypt from "bcryptjs";
+import alunoService from "../services/aluno.service.js"
+import criar_erro from "../utils/criar_erro.js"
+import gerarRA from "../utils/gerarRA.js"
 
 
-export const criarAluno = async (req, res) => {
-  try {
-    const { nome, email, senha, curso } = req.body;
+async function cadastrarAluno(req, res, next) {
+  try{
+  const {nome, email, cpf, senha, id} = req.body
 
+  const novoAluno = await alunoService.cadastrarAluno(
+    nome,
+    email,
+    cpf,
+    senha,
+    id
+  )
 
-
-    const ra = await GerarRA();
-
-    const senhaCriptografada = await bycript.hash(senha, 10)
-
-    const novoAluno = await AlunoRepository.criar({
-        nome,
-        email,
-        senha: senhaCriptografada,
-        curso,
-        ra,
-    })
-
-    return res.status(201).json({mensagem:"Aluno cadastrado com sucesso!", aluno: novoAluno})
-
-  } catch (error) {
-    return res.status(500).json({mensagem: "Erro interno do servidor ao cadastrar aluno.",erro: error.message});
+  return res.status(201).json(novoAluno)
+  } catch(error){
+return res.status(error.status || 500).json({erro: error.message})
   }
-};
+}
 
+async function listarAluno(req, res) {
+  try{
+  const filtros = req.query
 
+  const alunos = await alunoService.ListarAlunos(filtros)
+
+  return res.status(200).json(alunos)
+  } catch(error) {
+    return res.status(error.status || 500).json({erro: error.message})
+  }
+}
+
+async function atualizarAluno(req, res) {
+  try{
+    const {id} = req.params
+    const dadosNovos = req.body;
+
+    const AlunoAtualizado = await alunoService.AtualizarAluno(id, dadosNovos)
+
+    return res.status(200).json(AlunoAtualizado)
+  } catch(error){
+return res.status(error.status || 500).json({erro: error.message})
+  }
+}
+
+async function deletarAluno(req, res){
+  try{
+    const {id} = req.params
+
+    const resultado = await alunoService.DeletarAluno(id);
+
+    return res.status(200).json(resultado)
+  } catch(error){
+    return res.status(error.status || 500).json({erro: error.message})
+  }
+}
+
+export default {
+  cadastrarAluno,
+  listarAluno,
+  atualizarAluno,
+  deletarAluno
+}

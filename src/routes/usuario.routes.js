@@ -6,6 +6,7 @@ import UsuarioController from "../controllers/usuario.controller.js";
 
 // Middleware que valida o token JWT.
 import autenticar from "../middlewares/autenticacao.middleware.js";
+import autorizar from "../middlewares/autorizacao.middleware.js";
 
 // Criamos o roteador de usuários.
 const router = Router();
@@ -15,15 +16,15 @@ const router = Router();
 
 // GET /api/usuarios/perfil
 // Retorna os dados do usuário logado.
-router.get("/perfil", autenticar, UsuarioController.perfil);
+router.get("/perfil", autenticar, autorizar(["admin", "professor", "aluno", "usuario"]), UsuarioController.perfil);
 
 // PATCH /api/usuarios/perfil
 // Atualiza nome e/ou senha do usuário logado.
-router.patch("/perfil", autenticar, UsuarioController.atualizarPerfil);
+router.patch("/perfil", autenticar, autorizar(["admin", "professor", "aluno", "usuario"]), UsuarioController.atualizarPerfil);
 
 // DELETE /api/usuarios/perfil
 // Remove a conta do usuário logado.
-router.delete("/perfil", autenticar, UsuarioController.removerMinhaConta);
+router.delete("/perfil", autenticar, autorizar(["admin", "professor", "aluno", "usuario"]), UsuarioController.removerMinhaConta);
 
 // Exportamos o roteador para o app.js.
 export default router;

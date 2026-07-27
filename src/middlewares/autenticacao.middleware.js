@@ -18,7 +18,7 @@
 import jwt from "jsonwebtoken";
 
 // Helper para criar erros padronizados (mensagem + status).
-import criarErro from "../utils/criarErro.js";
+import criarErro from "../utils/criar_erro.js";
 
 // O Express vai executar esta função em cada requisição da rota protegida.
 function autenticar(req, res, next) {
@@ -65,6 +65,7 @@ function autenticar(req, res, next) {
     req.usuario = {
       id: dadosDoToken.id,
       email: dadosDoToken.email,
+      tipo: dadosDoToken.tipo || dadosDoToken.role || dadosDoToken.perfil || "usuario",
     };
 
     // Token válido: liberamos a requisição para seguir até a rota/controller.
