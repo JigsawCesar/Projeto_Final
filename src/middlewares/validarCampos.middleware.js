@@ -10,7 +10,7 @@
 // encerramos a requisição com erro 400 e NEM chamamos o controller.
 
 // Helper para criar erros padronizados (mensagem + status HTTP).
-import criarErro from "../utils/criarErro.js";
+import criarErro from "../utils/criar_erro.js";
 
 // Middleware da rota de CADASTRO.
 // O cadastro precisa de: nome, email e senha.

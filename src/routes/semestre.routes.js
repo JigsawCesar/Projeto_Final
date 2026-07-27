@@ -1,22 +1,23 @@
 import { Router } from "express";
 import SemestreController from "../controllers/semestre.controller.js";
 import autenticar from "../middlewares/autenticacao.middleware.js";
+import autorizar from "../middlewares/autorizacao.middleware.js";
 
 const router = Router();
 // POST /api/semestres
 
-router.post("/", autenticar, SemestreController.criar);
+router.post("/", autenticar, autorizar(["admin", "professor"]), SemestreController.criar);
 // GET /api/semestres
 
-router.get("/", autenticar, SemestreController.listar);
+router.get("/", autenticar, autorizar(["admin", "professor", "aluno", "usuario"]), SemestreController.listar);
 // GET /api/semestres/:id
 
-router.get("/:id", autenticar, SemestreController.buscar_por_id);
+router.get("/:id", autenticar, autorizar(["admin", "professor", "aluno", "usuario"]), SemestreController.buscar_por_id);
 // PUT /api/semestres/:id
 
-router.put("/:id", autenticar, SemestreController.atualizar);
+router.put("/:id", autenticar, autorizar(["admin", "professor"]), SemestreController.atualizar);
 // DELETE /api/semestres/:id
 
-router.delete("/:id", autenticar, SemestreController.deletar);
+router.delete("/:id", autenticar, autorizar(["admin", "professor"]), SemestreController.deletar);
 
 export default router;
