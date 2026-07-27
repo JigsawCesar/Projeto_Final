@@ -1,4 +1,4 @@
-import Aluno from "../models/aluno.model";
+import Aluno from "../models/aluno.model.js";
 
 async function GerarRA() {
   const anoAtual = new Date().getFullYear().toString();

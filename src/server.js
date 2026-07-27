@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 try {
   // Antes de subir o servidor, conectamos ao banco.
-  await conectarBanco();
+  conectarBanco();
 
   // Se a conexão deu certo, iniciamos o servidor HTTP.
   app.listen(PORT, () => {

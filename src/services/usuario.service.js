@@ -4,7 +4,7 @@ import criar_erro from "../utils/criar_erro.js";
 import bcrypt from "bcryptjs";
 
 async function buscarPerfil(usuario) {
-  if (!usuario?.id || !usuario?.tipo) {
+  if (!usuario.id || !usuario.tipo) {
     throw criar_erro("Dados do usuário inválidos.", 400);
   }
 
