@@ -5,6 +5,7 @@ import disciplina_routes from "./routes/disciplina.routes.js";
 import erro_middleware from "./middlewares/erro.middleware.js";
 import criar_erro from "./utils/criar_erro.js";
 import semestre_routes from "./routes/semestre.routes.js";
+import token_presenca_routes from "./routes/token_presenca.routes.js";
 
 const app = express();
 app.use(express.json());
@@ -20,6 +21,8 @@ app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/disciplinas", disciplina_routes);
 
 app.use("/api/semestres", semestre_routes);
+
+app.use("/api/tokens-presenca", token_presenca_routes);
 
 app.use((req, res, next) => {
   return next(criar_erro("Rota não encontrada!", 404));
