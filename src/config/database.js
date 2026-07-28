@@ -19,7 +19,7 @@ async function conectarBanco() {
   await mongoose.connect(mongoUri);
 
   // Mensagem simples para confirmar no terminal que a conexão funcionou.
-  console.log("MongoDB conectado com sucesso.");
+  console.log("|     MongoDB conectado com sucesso!    |\n=========================================");
 }
 
 export default conectarBanco;

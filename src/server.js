@@ -21,11 +21,12 @@ try {
 
   // Se a conexão deu certo, iniciamos o servidor HTTP.
   app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}.`);
+    console.log(`\n=========================================\n| O servidor está rodando na porta ${PORT} |\n=========================================`);
   });
 } catch (error) {
   // Se a conexão ou a inicialização falhar, mostramos o erro no terminal.
-  console.error("Erro ao iniciar a aplicação:", error.message);
+  console.error("| Erro ao iniciar a aplicação:", error.message);
+  console.log("=========================================");
 
   // Encerramos o processo para não deixar a aplicação rodando sem banco.
   process.exit(1);
