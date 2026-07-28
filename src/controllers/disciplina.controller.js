@@ -20,7 +20,7 @@ async function buscar_por_id(req, res, next) {
 
 async function listar(req, res, next) {
   try {
-    const disciplinas = await DisciplinaService.listarTodas();
+    const disciplinas = await DisciplinaService.listar_todas();
     return res.status(200).json({ disciplinas });
   } catch (error) {
     return next(error);

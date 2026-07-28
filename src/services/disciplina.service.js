@@ -34,7 +34,7 @@ async function listar_todas() {
 async function atualizar(id, dados) {
 
   if (!dados || Object.keys(dados).length === 0) {
-    throw cria_erro("Envie pelo menos um campo para atualizar.", 400);
+    throw criar_erro("Envie pelo menos um campo para atualizar.", 400);
   };
 
   const disciplina = await DisciplinaRepository.buscar_por_id(id);
