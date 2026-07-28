@@ -61,8 +61,10 @@ Definidas em `.env` (nunca commitado — está no `.gitignore`):
 | `JWT_SECRET` | Segredo usado para assinar/verificar os tokens JWT |
 | `JWT_EXPIRES_IN` | Validade pretendida do token (⚠️ hoje **não é lida pelo código** — o valor de expiração está hardcoded em `8h` em `auth.service.js`) |
 | `BCRYPT_SALT_ROUNDS` | Custo do hash pretendido (⚠️ hoje **não é lida pelo código** — o custo está hardcoded em `10` em `auth.service.js`) |
+| `ADMIN_EMAIL` / `ADMIN_SENHA` | Credenciais da conta de administrador (login com `tipo: "admin"`) — conta fixa por ambiente, não um registro no banco |
+| `ADMIN_NOME` / `ADMIN_CPF` | Opcionais — nome/CPF exibidos para o admin no login e em `/api/usuarios/perfil`; sem eles, usa `"Administrador"` sem CPF |
 
-Adicionalmente, o código de login (`src/services/auth.service.js`) espera `ADMIN_EMAIL` e `ADMIN_SENHA` para permitir login com `tipo: "admin"`, mas **essas variáveis não existem no `.env` atual** — login como admin falha até serem adicionadas manualmente.
+Essas quatro variáveis só são usadas para o **bootstrap**: no primeiro login com `tipo: "admin"`, `src/services/auth.service.js` confere se já existe um documento `Admin` no Mongo; se não existir, cria um novo (com senha já em hash bcrypt) usando esses valores do `.env` — só permite criar se email/senha baterem exatamente com `ADMIN_EMAIL`/`ADMIN_SENHA`. A partir daí, login, edição de perfil e senha do admin passam a valer contra esse registro no banco, exatamente como aluno/professor; o `.env` deixa de ser consultado.
 
 ## Arquitetura em camadas
 
@@ -90,14 +92,15 @@ Todos os schemas usam `timestamps: true`.
 
 | Model | Campos principais | Observações |
 |---|---|---|
-| **Aluno** | `nome`, `email` (único), `cpf` (11 dígitos), `senhaHash` (`select: false`) | Não possui campo `ra` nem `curso` (ver pendências) |
+| **Admin** | `nome`, `email` (único), `cpf`, `senhaHash` (`select: false`) | Único registro, criado automaticamente (*bootstrap*) no primeiro login com `tipo: "admin"` que bater com `ADMIN_EMAIL`/`ADMIN_SENHA`/`ADMIN_NOME`/`ADMIN_CPF` do `.env`; depois disso, login e perfil passam a usar esse registro no Mongo, não mais o `.env` |
+| **Aluno** | `nome`, `email` (único), `cpf` (11 dígitos), `senhaHash` (`select: false`), `ra` (único) | `ra` é gerado automaticamente no cadastro no formato Ano+Sequencial (`utils/gerarRA.js`, ex.: `2026001`); ainda não possui campo `curso` (ver pendências) |
 | **Professor** | `nome`, `email` (único), `cpf` (11 dígitos), `senhaHash` (`select: false`) | Não possui campo `disciplina` |
 | **Disciplina** | `nome`, `codigo` (único), `carga_horaria` | — |
 | **Semestre** | `ano`, `periodo` | Unicidade de `ano + periodo` garantida no service |
 | **Turma** | `nome`, `horario`, `disciplina` (ref `Disciplina`), `professor` (ref `Professor`), `semestre` (ref `Semestre`), `alunos` (array de refs `Aluno`) | — |
 | **Aula** | `turma` (ref `Turma`), `data`, `horario`, `status` (`fechada`/`aberta`, default `fechada`) | Abrir/fechar é feito via as ações da rota (ver [Rotas da API](#rotas-da-api)), não editando o campo diretamente |
 | **TokenPresenca** | `aula` (ref `Aula`), `codigo` (único), `qr_code` (DataURL), `ativo` (bool), `data_expiracao` | Gerado automaticamente ao abrir uma aula |
-| **Presenca** | `aluno` (ref `Aluno`), `aula` (ref `Aula`), `token` (ref `TokenPresenca`), `data_registro`, `status` (`presente`/`atrasado`/`justificado`) | Model existe mas **sem controller/service/repository/rotas** — ainda não é possível o aluno confirmar presença pela API (ver pendências) |
+| **Presenca** | `aluno` (ref `Aluno`), `aula` (ref `Aula`), `token` (ref `TokenPresenca`), `data_registro`, `status` (`presente`/`atrasado`/`justificado`) | CRUD completo (ver [Rotas da API](#rotas-da-api)); alimenta o relatório de frequência por turma |
 
 ## Autenticação e autorização
 
@@ -108,7 +111,7 @@ Todos os schemas usam `timestamps: true`.
 Middlewares (`src/middlewares/`):
 
 - **`autenticar`** — lê e valida o header `Authorization`, decodifica o JWT e popula `req.usuario = { id, email, tipo }`. Sem token válido → 401.
-- **`autorizar(tiposPermitidos)`** — fábrica de middleware que restringe o acesso por papel (`admin`, `professor`, `aluno`, `usuario`). Usado em `usuarios` (qualquer papel autenticado); em `semestres`, `alunos`, `turmas` e `aulas` (leitura e escrita restritas a `admin`/`professor`, para que uma conta de aluno não acesse dados de gestão acadêmica); e em `disciplinas`/`professor`, onde a leitura é liberada para `admin`/`professor`, mas **criar, atualizar e excluir é restrito só a `admin`** — um professor não gerencia outros professores nem o catálogo de disciplinas, só consulta. **Não** é usado em `tokens-presenca` — essa rota só exige estar autenticado, sem checar o papel.
+- **`autorizar(tiposPermitidos)`** — fábrica de middleware que restringe o acesso por papel (`admin`, `professor`, `aluno`, `usuario`). Usado em `usuarios` (qualquer papel autenticado); em `semestres`, `turmas`, `aulas` e `presencas` (leitura e escrita restritas a `admin`/`professor`, exceto o próprio registro/consulta de presença do aluno); e em `disciplinas`/`professor`/`alunos`, onde a leitura é liberada para `admin`/`professor`, mas **criar, atualizar e excluir é restrito só a `admin`** — um professor não gerencia outros professores, alunos, nem o catálogo de disciplinas, só consulta. **Não** é usado em `tokens-presenca` — essa rota só exige estar autenticado, sem checar o papel.
 - **`validarCadastro` / `validarLogin`** — garantem presença dos campos obrigatórios no body de `/api/auth/*`.
 - **`erro_middleware`** — trata centralmente `ValidationError`/`CastError` do Mongoose, duplicidade (`code 11000`) e erros customizados criados via `utils/criar_erro.js`.
 
@@ -118,18 +121,18 @@ Prefixo definido em [src/app.js](src/app.js). CORS liberado para `http://localho
 
 `GET /` → healthcheck (`{ message: "API está rodando." }`), sem autenticação.
 
-### `POST /api/auth/cadastro` — pública
-Body: `{ nome, email, cpf, senha, tipo? }` (`tipo`: `"aluno"` | `"professor"`, default `"aluno"`). Verifica duplicidade de email/cpf, cria o registro com senha hasheada.
+### `POST /api/auth/cadastro` — autenticado, restrito a `admin`
+Body: `{ nome, email, cpf, senha, tipo? }` (`tipo`: `"aluno"` | `"professor"`, default `"aluno"`). Verifica duplicidade de email/cpf, cria o registro com senha hasheada. **Não é mais uma rota pública** — só um `admin` autenticado pode cadastrar aluno ou professor; não existe mais auto-cadastro.
 
 ### `POST /api/auth/login` — pública
-Body: `{ email, senha, tipo? }`. Retorna `{ token, tipo, usuario }`. Se `tipo: "admin"`, valida contra `ADMIN_EMAIL`/`ADMIN_SENHA` (não configuradas hoje).
+Body: `{ email, senha, tipo? }`. Retorna `{ token, tipo, usuario }`. Se `tipo: "admin"`, valida contra o registro `Admin` no Mongo (criando-o no primeiro login, via bootstrap a partir de `ADMIN_EMAIL`/`ADMIN_SENHA`/`ADMIN_NOME`/`ADMIN_CPF`).
 
 ### `/api/usuarios` — autenticado (qualquer papel)
 | Método | Path | Descrição |
 |---|---|---|
 | GET | `/perfil` | Dados do usuário logado (`req.usuario`) |
 | PATCH | `/perfil` | Atualiza nome/email/cpf/senha do próprio usuário |
-| DELETE | `/perfil` | Remove a própria conta (admin não pode ser removido) |
+| DELETE | `/perfil` | Remove a própria conta (bloqueado para `admin`, que é conta única do sistema) |
 
 ### `/api/disciplinas` — autenticado; leitura `admin`/`professor`, escrita só `admin`
 CRUD completo: `POST /`, `GET /`, `GET /:id`, `PUT /:id`, `DELETE /:id`. Valida código duplicado. `POST`/`PUT`/`DELETE` exigem `admin` — professor só lista/consulta (precisa da lista para vincular a Turma).
@@ -172,11 +175,20 @@ CRUD completo: `POST /`, `GET /`, `GET /:id`, `PUT /:id`, `DELETE /:id`. Valida 
 | POST | `/validar` | Valida `{ codigo }`: existe, está ativo, não expirou; marca como usado (`ativo: false`) |
 | DELETE | `/:id` | Remove token |
 
-### `/api/alunos` — autenticado; restrito a `admin`/`professor`
-CRUD de alunos: `POST /`, `GET /` (filtros via query `nome/email/cpf/id`), `GET /:id`, `PUT /:id`, `DELETE /:id`. Uma conta de aluno não acessa esta rota — só vê os próprios dados via `/api/usuarios/perfil`.
+### `/api/alunos` — autenticado; leitura `admin`/`professor`, escrita só `admin`
+CRUD de alunos: `POST /`, `GET /` (filtros via query `nome/email/cpf/id`), `GET /:id`, `PUT /:id`, `DELETE /:id`. `POST`/`PUT`/`DELETE` exigem `admin` — um professor só consulta a lista (precisa dela para matricular alunos em Turma). Uma conta de aluno não acessa esta rota — só vê os próprios dados via `/api/usuarios/perfil`.
 
 ### `/api/professor` — autenticado; leitura `admin`/`professor`, escrita só `admin`
 CRUD de professores: `POST /`, `GET /` (filtros via query `nome/email/cpf/id`), `GET /:id`, `PUT /:id`, `DELETE /:id`. `POST`/`PUT`/`DELETE` exigem `admin` — um professor não cria, edita nem remove outros professores, só consulta a lista (precisa dela para vincular a Turma).
+
+### `/api/presencas` — autenticado
+| Método | Path | Papéis | Descrição |
+|---|---|---|---|
+| POST | `/` | `admin`, `professor`, `aluno` | Registra presença a partir de um `codigo` de token válido. Aluno só registra a própria presença (`req.usuario.id`); admin/professor registram em nome de um aluno informando `aluno_id` no body — útil enquanto não existe tela de auto-confirmação. Valida token (ativo, não expirado), impede duplicidade (RN-001) e marca o token como usado |
+| GET | `/` | `admin`, `professor` | Lista todas as presenças registradas |
+| GET | `/relatorio/:turma_id` | `admin`, `professor` | **Relatório de frequência da turma**: para cada aluno matriculado, retorna total de aulas, quantas presenças e o percentual. Professor só vê o relatório de turmas em que é responsável (RN-005) |
+| GET | `/aluno/:aluno_id` | `admin`, `professor`, `aluno` | Histórico de presenças de um aluno. Aluno só pode consultar o próprio histórico |
+| DELETE | `/:id` | `admin`, `professor` | Remove um registro de presença (correção manual) |
 
 Rota não encontrada → 404 `{ mensagem: "Rota não encontrada!" }` via middleware central.
 
@@ -192,13 +204,9 @@ Configurado para o [Render](https://render.com) via [render.yaml](render.yaml): 
 
 Pontos observados no código atual, relevantes para quem for continuar o desenvolvimento:
 
-- **Bug de rota em `aluno.routes.js`**: `router.post("/,", ...)` (vírgula sobrando) torna o cadastro de aluno inacessível em `POST /api/alunos` — hoje só é possível cadastrar aluno via `/api/auth/cadastro`.
 - **`GET /api/alunos/:id`** (e o equivalente em `/api/professor/:id`) está ligado à mesma função de listagem geral, que só lê `req.query` — buscar por id na URL não funciona, é preciso usar `?id=`.
-- **`GET /api/disciplinas`** chama `DisciplinaService.listarTodas()`, mas o service exporta `listar_todas` — quebra em runtime.
-- **Typo em `disciplina.service.js`** (`atualizar`): usa `cria_erro` em vez de `criar_erro`.
-- **`ADMIN_EMAIL`/`ADMIN_SENHA`** ausentes do `.env` — login como admin sempre falha hoje.
 - **`JWT_EXPIRES_IN`/`BCRYPT_SALT_ROUNDS`** não são lidas pelo código (valores hardcoded).
-- **`Presenca`** (model + a camada completa de controller/service/repository/routes) ainda não foi implementada — o aluno ainda não tem como confirmar a própria presença pela API; hoje o fluxo vai até "professor abre a aula, QR Code/código são gerados e podem ser validados", mas a confirmação não gera um registro de `Presenca` nem alimenta um relatório de frequência (RF-011 a RF-013 pendentes).
-- **Geração automática de RA** (`utils/gerarRA.js`) existe mas não é chamada em nenhum lugar, e o schema de Aluno não tem campo `ra`.
+- **Confirmação de presença pelo próprio aluno ainda não tem tela no frontend**: a rota `POST /api/presencas` já aceita um aluno autenticado confirmando a própria presença (`tipo: "aluno"`), mas hoje só existe UI para admin/professor registrarem em nome de um aluno (tela `/tokens` do frontend) — falta a tela de auto-confirmação (RF-018/RF-019).
+- **Geração automática de RA** (`utils/gerarRA.js`, formato Ano+Sequencial, RF-001/RF-025) agora é chamada em `auth.service.js` e `aluno.service.js` no cadastro de aluno, e o schema de Aluno tem o campo `ra` (`unique`).
 
-O que já funciona de ponta a ponta: cadastro/login de aluno e professor com JWT + bcrypt; CRUD de Semestre (`admin`/`professor`) e de Disciplina/Professor (leitura `admin`/`professor`, escrita só `admin`, exceto o bug do `listarTodas` de Disciplina); CRUD de Aluno e de Turma (com matrícula de alunos) e Aula (`admin`/`professor`); abrir/fechar aula gerando e invalidando o token + QR Code automaticamente; controle de acesso por papel impedindo que uma conta de aluno acesse rotas de gestão acadêmica e que um professor gerencie outros professores ou o catálogo de disciplinas.
+O que já funciona de ponta a ponta: cadastro (restrito a `admin`) e login de aluno e professor com JWT + bcrypt; CRUD de Semestre (`admin`/`professor`) e de Disciplina/Professor/Aluno (leitura `admin`/`professor`, escrita só `admin`); CRUD de Turma (com matrícula de alunos) e Aula (`admin`/`professor`); abrir/fechar aula gerando e invalidando o token + QR Code automaticamente; registro de presença com validação de token e bloqueio de duplicidade (RN-001); relatório de frequência por turma; controle de acesso por papel impedindo que uma conta de aluno acesse rotas de gestão acadêmica e que um professor gerencie outros professores, alunos ou o catálogo de disciplinas.
