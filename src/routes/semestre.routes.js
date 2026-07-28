@@ -9,10 +9,10 @@ const router = Router();
 router.post("/", autenticar, autorizar(["admin", "professor"]), SemestreController.criar);
 // GET /api/semestres
 
-router.get("/", autenticar, autorizar(["admin", "professor", "aluno", "usuario"]), SemestreController.listar);
+router.get("/", autenticar, autorizar(["admin", "professor"]), SemestreController.listar);
 // GET /api/semestres/:id
 
-router.get("/:id", autenticar, autorizar(["admin", "professor", "aluno", "usuario"]), SemestreController.buscar_por_id);
+router.get("/:id", autenticar, autorizar(["admin", "professor"]), SemestreController.buscar_por_id);
 // PUT /api/semestres/:id
 
 router.put("/:id", autenticar, autorizar(["admin", "professor"]), SemestreController.atualizar);

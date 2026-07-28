@@ -1,5 +1,7 @@
 // dotenv carrega as variáveis do arquivo .env para process.env.
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import path from "path";
 
 // app contém toda a configuração do Express.
 import app from "./app.js";
@@ -7,8 +9,10 @@ import app from "./app.js";
 // Função que conecta no MongoDB.
 import conectarBanco from "./config/database.js";
 
-// Carrega o arquivo .env.
-dotenv.config({path: "../.env"});
+// Carrega o arquivo .env que fica na raiz do backend, independente de
+// onde o comando "node" foi executado.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 // No Render, a porta vem de process.env.PORT.
 // No computador local, se não houver PORT, usamos 3000.
