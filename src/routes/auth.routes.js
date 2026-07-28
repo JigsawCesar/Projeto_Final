@@ -8,12 +8,22 @@ import AuthController from "../controllers/auth.controller.js";
 // São duas funções: uma para o cadastro e outra para o login.
 import validarCampos from "../middlewares/validarCampos.middleware.js";
 
+// Cadastro de aluno/professor deixou de ser público: só um admin autenticado pode cadastrar.
+import autenticar from "../middlewares/autenticacao.middleware.js";
+import autorizar from "../middlewares/autorizacao.middleware.js";
+
 // Criamos o roteador de autenticação.
 const router = Router();
 
 // POST /api/auth/cadastro
-// Primeiro o middleware confere os campos; depois o controller faz o cadastro.
-router.post("/cadastro", validarCampos.validarCadastro, AuthController.cadastrar);
+// Exige admin autenticado; depois confere os campos; depois o controller faz o cadastro.
+router.post(
+  "/cadastro",
+  autenticar,
+  autorizar(["admin"]),
+  validarCampos.validarCadastro,
+  AuthController.cadastrar,
+);
 
 // POST /api/auth/login
 // Primeiro o middleware confere email/senha; depois o controller faz o login.

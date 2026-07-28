@@ -31,3 +31,13 @@ services:
       # Custo usado pelo bcrypt para gerar hash da senha.
       - key: BCRYPT_SALT_ROUNDS
         value: "10"
+      # Credenciais da conta de administrador. sync: false evita salvar os valores no arquivo —
+      # preencha manualmente no painel do Render.
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_SENHA
+        sync: false
+      - key: ADMIN_NOME
+        sync: false
+      - key: ADMIN_CPF
+        sync: false
