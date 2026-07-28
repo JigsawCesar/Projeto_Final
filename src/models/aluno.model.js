@@ -24,6 +24,10 @@ const AlunoSchema = new mongoose.Schema(
       required: [true, "A senha é obrigatória"],
       select: false,
     },
+    ra: {
+      type: String,
+      unique: true,
+    },
   },
   {
     timestamps: true,

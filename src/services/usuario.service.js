@@ -1,5 +1,6 @@
 import AlunoRepository from "../repositories/aluno.repository.js";
 import ProfessorRepository from "../repositories/professor.repository.js";
+import AdminRepository from "../repositories/admin.repository.js";
 import criar_erro from "../utils/criar_erro.js";
 import bcrypt from "bcryptjs";
 
@@ -27,12 +28,12 @@ async function buscarPerfil(usuario) {
   }
 
   if (usuario.tipo === "admin") {
-    return {
-      id: usuario.id,
-      email: usuario.email,
-      nome: "Administrador",
-      tipo: "admin",
-    };
+    const admin = await AdminRepository.buscarPorId(usuario.id);
+    if (!admin) {
+      throw criar_erro("Administrador não encontrado.", 404);
+    }
+
+    return admin;
   }
 
   throw criar_erro("Tipo de usuário inválido.", 400);
@@ -85,7 +86,22 @@ async function atualizarPerfil(usuario, dadosNovos = {}) {
   }
 
   if (usuario.tipo === "admin") {
-    return { mensagem: "Administrador não pode ser alterado por esta rota." };
+    const adminAtual = await AdminRepository.buscarPorId(usuario.id);
+    if (!adminAtual) {
+      throw criar_erro("Administrador não encontrado.", 404);
+    }
+
+    const { nome, email, cpf, senha } = dadosNovos;
+    const dadosAtualizados = {};
+
+    if (nome) dadosAtualizados.nome = nome;
+    if (email) dadosAtualizados.email = email;
+    if (cpf) dadosAtualizados.cpf = cpf;
+    if (senha) {
+      dadosAtualizados.senhaHash = await bcrypt.hash(senha, 10);
+    }
+
+    return AdminRepository.atualizarPorId(usuario.id, dadosAtualizados);
   }
 
   throw criar_erro("Tipo de usuário inválido.", 400);

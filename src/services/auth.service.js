@@ -2,7 +2,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import AlunoRepository from "../repositories/aluno.repository.js";
 import ProfessorRepository from "../repositories/professor.repository.js";
+import AdminRepository from "../repositories/admin.repository.js";
 import criar_erro from "../utils/criar_erro.js";
+import GerarRA from "../utils/gerarRA.js";
 
 async function cadastrar(dados) {
   const { nome, email, cpf, senha, tipo = "aluno" } = dados;
@@ -24,7 +26,8 @@ async function cadastrar(dados) {
     }
 
     const senhaHash = await bcrypt.hash(senha, 10);
-    const novoAluno = await AlunoRepository.create({ nome, email, cpf, senhaHash });
+    const ra = await GerarRA();
+    const novoAluno = await AlunoRepository.create({ nome, email, cpf, senhaHash, ra });
 
     return {
       mensagem: "Aluno cadastrado com sucesso.",
@@ -32,6 +35,7 @@ async function cadastrar(dados) {
         id: novoAluno._id,
         nome: novoAluno.nome,
         email: novoAluno.email,
+        ra: novoAluno.ra,
         tipo: "aluno",
       },
     };
@@ -74,26 +78,49 @@ async function login(dados) {
   }
 
   if (tipo === "admin") {
-    if (
-      process.env.ADMIN_EMAIL &&
-      process.env.ADMIN_SENHA &&
-      email === process.env.ADMIN_EMAIL &&
-      senha === process.env.ADMIN_SENHA
-    ) {
-      const token = jwt.sign(
-        { id: "admin", email, tipo: "admin" },
-        process.env.JWT_SECRET,
-        { expiresIn: "8h" }
-      );
+    let admin = await AdminRepository.buscarPorEmail(email, true);
 
-      return {
-        token,
-        tipo: "admin",
-        usuario: { id: "admin", email, tipo: "admin" },
-      };
+    if (!admin) {
+      // Ainda não existe um registro de admin no banco: só permitimos criá-lo
+      // (bootstrap) se as credenciais baterem exatamente com o .env.
+      const emailEnv = process.env.ADMIN_EMAIL;
+      const senhaEnv = process.env.ADMIN_SENHA;
+
+      if (!emailEnv || !senhaEnv || email !== emailEnv || senha !== senhaEnv) {
+        throw criar_erro("Credenciais de administrador inválidas.", 401);
+      }
+
+      const senhaHash = await bcrypt.hash(senhaEnv, 10);
+      admin = await AdminRepository.create({
+        nome: process.env.ADMIN_NOME || "Administrador",
+        email: emailEnv,
+        cpf: process.env.ADMIN_CPF,
+        senhaHash,
+      });
+    } else {
+      const senhaCorreta = await bcrypt.compare(senha, admin.senhaHash);
+
+      if (!senhaCorreta) {
+        throw criar_erro("Credenciais de administrador inválidas.", 401);
+      }
     }
 
-    throw criar_erro("Credenciais de administrador inválidas.", 401);
+    const token = jwt.sign(
+      { id: admin._id.toString(), email: admin.email, tipo: "admin" },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" }
+    );
+
+    return {
+      token,
+      tipo: "admin",
+      usuario: {
+        id: admin._id,
+        nome: admin.nome,
+        email: admin.email,
+        tipo: "admin",
+      },
+    };
   }
 
   const tiposParaTentar = tipo ? [tipo] : ["aluno", "professor"];
