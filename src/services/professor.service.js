@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 
 async function cadastrarProfessor(nome, email, cpf, senha, id) {
   const resultadoemail = await ProfessorRepository.buscarPorEmail(email);
-  const resultadonome = await ProfessorRepository.buscarPorNome(nome);
   const resultadocpf = await ProfessorRepository.buscarPorCpf(cpf);
   const resultadoid = await ProfessorRepository.buscarPorId(id);
 
@@ -14,10 +13,6 @@ async function cadastrarProfessor(nome, email, cpf, senha, id) {
 
   if (resultadocpf) {
     throw criar_erro("Cpf ja utilizado", 409);
-  }
-
-  if (resultadonome) {
-    throw criar_erro("Nome ja utilizado", 409);
   }
 
   if (resultadoid) {
@@ -89,14 +84,6 @@ async function AtualizarProfessor(id, dadosNovos = {}) {
 
     if (CpfExistente) {
       throw criar_erro("CPF já está em uso por outro usuário", 409);
-    }
-  }
-
-  if (nome && nome !== ProfessorAtual.nome) {
-    const NomeExistente = await ProfessorRepository.buscarPorNome(nome);
-
-    if (NomeExistente) {
-      throw criar_erro("Nome já está em uso por outro usuário", 409);
     }
   }
 

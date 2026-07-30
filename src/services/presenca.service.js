@@ -96,6 +96,31 @@ async function relatorio_por_turma(turma_id, usuario) {
   return { turma, totalAulas, relatorio };
 };
 
+// RF-013: dashboard de frequência do próprio aluno, com % de presença e faltas por turma.
+async function minha_frequencia(aluno_id) {
+  const turmas = await TurmaRepository.listar_por_aluno(aluno_id);
+
+  const relatorio = await Promise.all(
+    turmas.map(async (turma) => {
+      const aulas = await AulaRepository.listar_por_turma(turma._id);
+      const totalAulas = aulas.length;
+      const aulaIds = aulas.map((aula) => aula._id);
+      const presencas = await PresencaRepository.contar_por_aluno_e_aulas(aluno_id, aulaIds);
+      const faltas = totalAulas - presencas;
+
+      return {
+        turma,
+        totalAulas,
+        presencas,
+        faltas,
+        percentual: totalAulas > 0 ? Math.round((presencas / totalAulas) * 100) : 0,
+      };
+    }),
+  );
+
+  return { relatorio };
+};
+
 async function deletar(id) {
   const presenca = await PresencaRepository.deletar_por_id(id);
 
@@ -111,6 +136,7 @@ const PresencaService = {
   listar_todas,
   listar_por_aluno,
   relatorio_por_turma,
+  minha_frequencia,
   deletar,
 };
 

@@ -39,6 +39,15 @@ async function listar_por_aluno(req, res, next) {
   };
 };
 
+async function minha_frequencia(req, res, next) {
+  try {
+    const relatorio = await PresencaService.minha_frequencia(req.usuario.id);
+    return res.status(200).json(relatorio);
+  } catch (error) {
+    return next(error);
+  };
+};
+
 async function relatorio_por_turma(req, res, next) {
   try {
     const relatorio = await PresencaService.relatorio_por_turma(req.params.turma_id, req.usuario);
@@ -62,6 +71,7 @@ const PresencaController = {
   listar,
   listar_por_aluno,
   relatorio_por_turma,
+  minha_frequencia,
   deletar,
 };
 

@@ -24,6 +24,10 @@ async function buscar_por_aluno_e_aula(aluno_id, aula_id) {
   return Presenca.findOne({ aluno: aluno_id, aula: aula_id });
 };
 
+async function contar_por_aluno_e_aulas(aluno_id, aula_ids) {
+  return Presenca.countDocuments({ aluno: aluno_id, aula: { $in: aula_ids } });
+};
+
 async function deletar_por_id(id) {
   return Presenca.findByIdAndDelete(id);
 };
@@ -35,6 +39,7 @@ const PresencaRepository = {
   listar_por_aluno,
   listar_por_aula,
   buscar_por_aluno_e_aula,
+  contar_por_aluno_e_aulas,
   deletar_por_id,
 };
 

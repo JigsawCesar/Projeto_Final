@@ -11,6 +11,14 @@ router.post("/", autenticar, autorizar(["admin", "professor", "aluno"]), Presenc
 // GET /api/presencas -> lista todas as presenças (gestão acadêmica)
 router.get("/", autenticar, autorizar(["admin", "professor"]), PresencaController.listar);
 
+// GET /api/presencas/minha-frequencia -> dashboard de frequência (% presença/falta) do próprio aluno
+router.get(
+  "/minha-frequencia",
+  autenticar,
+  autorizar(["aluno"]),
+  PresencaController.minha_frequencia,
+);
+
 // GET /api/presencas/relatorio/:turma_id -> relatório de frequência da turma
 router.get(
   "/relatorio/:turma_id",

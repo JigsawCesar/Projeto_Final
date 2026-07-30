@@ -6,7 +6,6 @@ import GerarRA from "../utils/gerarRA.js";
 async function cadastrarAluno(nome, email, cpf, senha, id) {
   const resultadoemail = await AlunoRepository.buscarPorEmail(email);
   const resultadocpf = await AlunoRepository.buscarPorCpf(cpf);
-  const resultadonome = await AlunoRepository.buscarPorNome(nome);
   const resultadoid = await AlunoRepository.buscarPorId(id);
 
   if (resultadoemail) {
@@ -15,10 +14,6 @@ async function cadastrarAluno(nome, email, cpf, senha, id) {
 
   if (resultadocpf) {
     throw criar_erro("Cpf ja utilizado", 409);
-  }
-
-  if (resultadonome) {
-    throw criar_erro("Nome ja utilizado", 409);
   }
 
   if (resultadoid) {
@@ -92,14 +87,6 @@ async function AtualizarAluno(id, dadosNovos = {}) {
 
     if (CpfExistente) {
       throw criar_erro("CPF ja está sendo utulizado por outro usuario", 409);
-    }
-  }
-
-  if (nome && nome !== AlunoAtual.nome) {
-    const NomeExistente = await AlunoRepository.buscarPorNome(nome);
-
-    if (NomeExistente) {
-      throw criar_erro("Nome ja esta sendo utilizado", 409);
     }
   }
 
