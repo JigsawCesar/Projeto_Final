@@ -72,7 +72,7 @@ async function AtualizarAluno(id, dadosNovos = {}) {
     throw criar_erro("Aluno não encontrado pelo ID", 404);
   }
 
-  const { nome, cpf, email } = dadosNovos;
+  const { nome, cpf, email, foto } = dadosNovos;
 
   if (email && email !== AlunoAtual.email) {
     const EmailExistente = await AlunoRepository.buscarPorEmail(email);
@@ -93,7 +93,8 @@ async function AtualizarAluno(id, dadosNovos = {}) {
   const AlunoAtualizado = await AlunoRepository.atualizarPorId(id, {
     nome: nome || AlunoAtual.nome,
     email: email || AlunoAtual.email,
-    cpf: cpf || AlunoAtual.cpf
+    cpf: cpf || AlunoAtual.cpf,
+    foto: foto !== undefined ? foto : AlunoAtual.foto,
   });
 
   return AlunoAtualizado;

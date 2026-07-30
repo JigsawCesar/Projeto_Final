@@ -53,12 +53,13 @@ async function atualizarPerfil(usuario, dadosNovos = {}) {
       throw criar_erro("Aluno não encontrado.", 404);
     }
 
-    const { nome, email, cpf, senha } = dadosNovos;
+    const { nome, email, cpf, senha, foto } = dadosNovos;
     const dadosAtualizados = {};
 
     if (nome) dadosAtualizados.nome = nome;
     if (email) dadosAtualizados.email = email;
     if (cpf) dadosAtualizados.cpf = cpf;
+    if (foto !== undefined) dadosAtualizados.foto = foto;
     if (senha) {
       dadosAtualizados.senhaHash = await bcrypt.hash(senha, 10);
     }
@@ -72,12 +73,13 @@ async function atualizarPerfil(usuario, dadosNovos = {}) {
       throw criar_erro("Professor não encontrado.", 404);
     }
 
-    const { nome, email, cpf, senha } = dadosNovos;
+    const { nome, email, cpf, senha, foto } = dadosNovos;
     const dadosAtualizados = {};
 
     if (nome) dadosAtualizados.nome = nome;
     if (email) dadosAtualizados.email = email;
     if (cpf) dadosAtualizados.cpf = cpf;
+    if (foto !== undefined) dadosAtualizados.foto = foto;
     if (senha) {
       dadosAtualizados.senhaHash = await bcrypt.hash(senha, 10);
     }
@@ -91,12 +93,13 @@ async function atualizarPerfil(usuario, dadosNovos = {}) {
       throw criar_erro("Administrador não encontrado.", 404);
     }
 
-    const { nome, email, cpf, senha } = dadosNovos;
+    const { nome, email, cpf, senha, foto } = dadosNovos;
     const dadosAtualizados = {};
 
     if (nome) dadosAtualizados.nome = nome;
     if (email) dadosAtualizados.email = email;
     if (cpf) dadosAtualizados.cpf = cpf;
+    if (foto !== undefined) dadosAtualizados.foto = foto;
     if (senha) {
       dadosAtualizados.senhaHash = await bcrypt.hash(senha, 10);
     }

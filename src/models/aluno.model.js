@@ -28,6 +28,17 @@ const AlunoSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    foto: {
+      type: String,
+      default: null,
+      validate: {
+        validator: function (valor) {
+          if (valor === null || valor === undefined || valor === "") return true;
+          return /^data:image\/(png|jpe?g|webp);base64,/.test(valor) && valor.length <= 900000;
+        },
+        message: "Foto inválida. Envie uma imagem (png, jpg ou webp) em base64 de até ~650KB.",
+      },
+    },
   },
   {
     timestamps: true,

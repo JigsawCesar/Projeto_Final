@@ -2,9 +2,9 @@ import Turma from "../models/turma.model.js";
 
 const POPULATE = [
   { path: "disciplina", select: "nome codigo carga_horaria" },
-  { path: "professor", select: "nome email" },
+  { path: "professor", select: "nome email foto" },
   { path: "semestre", select: "ano periodo" },
-  { path: "alunos", select: "nome email" },
+  { path: "alunos", select: "nome email foto" },
 ];
 
 async function criar(dados) {

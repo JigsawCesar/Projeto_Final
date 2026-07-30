@@ -69,7 +69,7 @@ async function AtualizarProfessor(id, dadosNovos = {}) {
     throw criar_erro("Professor não encontrado por ID", 404);
   }
 
-  const { nome, email, cpf } = dadosNovos;
+  const { nome, email, cpf, foto } = dadosNovos;
 
   if (email && email !== ProfessorAtual.email) {
     const EmailExistente = await ProfessorRepository.buscarPorEmail(email);
@@ -91,6 +91,7 @@ async function AtualizarProfessor(id, dadosNovos = {}) {
     nome: nome || ProfessorAtual.nome,
     email: email || ProfessorAtual.email,
     cpf: cpf || ProfessorAtual.cpf,
+    foto: foto !== undefined ? foto : ProfessorAtual.foto,
   });
 
   return ProfessorAtualizado;

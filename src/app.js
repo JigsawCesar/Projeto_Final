@@ -14,7 +14,7 @@ import aula_routes from "./routes/aula.routes.js"
 import presenca_routes from "./routes/presenca.routes.js"
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
 
 // Habilita CORS para o front-end em desenvolvimento e no deploy do Render.
 app.use(

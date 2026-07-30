@@ -119,6 +119,7 @@ async function login(dados) {
         nome: admin.nome,
         email: admin.email,
         tipo: "admin",
+        foto: admin.foto,
       },
     };
   }
@@ -160,6 +161,7 @@ async function login(dados) {
         nome: usuarioEncontrado.nome,
         email: usuarioEncontrado.email,
         tipo: tipoAtual,
+        foto: usuarioEncontrado.foto,
       },
     };
   }
